@@ -97,4 +97,4 @@ if __name__ == "__main__":
     
     if embeddings:
         print(f"嵌入向量维度: {len(embeddings[0])}")
-        print(f"样本嵌入向量前5个元素: {embeddings[0][:5]}")
+        print(f"样本嵌入向量前5个元素: {embeddings[0][:5]}") 

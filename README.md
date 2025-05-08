@@ -131,4 +131,4 @@ RAG/
 - **retrieval**: 实现BM25检索、向量检索和混合检索策略
 - **database**: 提供Elasticsearch和Milvus数据库接口
 - **generation**: 提供LLM生成接口
-- **utils**: 工具函数和配置加载
+- **utils**: 工具函数和配置加载 

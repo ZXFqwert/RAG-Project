@@ -433,4 +433,4 @@ if __name__ == "__main__":
     answer = rag_manager.answer(query)
     
     print(f"问题: {query}")
-    print(f"回答: {answer}")
+    print(f"回答: {answer}") 

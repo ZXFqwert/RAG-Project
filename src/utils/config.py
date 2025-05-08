@@ -96,4 +96,4 @@ if __name__ == "__main__":
     print(f"Ollama API Base: {config.ollama_api_base}")
     print(f"Documents Directory: {config.documents_dir}")
     print(f"Using Elasticsearch: {config.use_elasticsearch}")
-    print(f"Using Milvus: {config.use_milvus}")
+    print(f"Using Milvus: {config.use_milvus}") 
