@@ -223,7 +223,12 @@ class MilvusClient:
             return 0
         
         collection = Collection(self.collection_name)
-        return collection.num_entities
+        # 在获取数量前先加载集合
+        collection.load()
+        count = collection.num_entities
+        # 使用完后释放资源
+        collection.release()
+        return count
 
 
 if __name__ == "__main__":
