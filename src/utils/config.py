@@ -67,7 +67,7 @@ class Config:
     def get_elasticsearch_config(self) -> Dict[str, Any]:
         """获取Elasticsearch配置"""
         config = {
-            "hosts": [f"{self.elasticsearch_host}:{self.elasticsearch_port}"]
+            "hosts": [f"http://{self.elasticsearch_host}:{self.elasticsearch_port}"]
         }
         
         if self.elasticsearch_username and self.elasticsearch_password:

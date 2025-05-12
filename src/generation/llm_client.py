@@ -47,7 +47,7 @@ class LLMClient:
         
         # 构建请求
         payload = {
-            "model": "default",  # Qwen3-32B
+            "model": "Qwen3-32B",  # Qwen3-32B
             "messages": [
                 {"role": "system", "content": system_prompt},
                 {"role": "user", "content": user_message}
