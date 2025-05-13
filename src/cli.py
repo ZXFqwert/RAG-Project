@@ -68,6 +68,23 @@ def add_documents(args):
     print("文档添加完成")
 
 
+def clear_knowledge_base(args):
+    """清空知识库"""
+    print("正在清空知识库...")
+    
+    rag_manager = RAGManager(use_db=not args.memory)
+    
+    # 确认操作
+    if not args.force:
+        confirmation = input("警告：此操作将删除所有知识库数据，且无法恢复。是否继续？(y/n): ")
+        if confirmation.lower() not in ["y", "yes"]:
+            print("操作已取消")
+            return
+    
+    # 清空知识库
+    rag_manager.clear_knowledge_base()
+
+
 def run_api(args):
     """启动API服务器"""
     print(f"启动API服务器，端口: {args.port}...")
@@ -95,6 +112,11 @@ def main():
     add_parser.add_argument("--documents-dir", "-d", type=str, help="文档目录路径")
     add_parser.add_argument("--memory", "-m", action="store_true", help="使用内存索引而不是数据库")
     
+    # 清空知识库命令
+    clear_parser = subparsers.add_parser("clear", help="清空知识库")
+    clear_parser.add_argument("--force", "-f", action="store_true", help="强制清空，不提示确认")
+    clear_parser.add_argument("--memory", "-m", action="store_true", help="使用内存索引而不是数据库")
+    
     # API服务器命令
     server_parser = subparsers.add_parser("server", help="启动API服务器")
     server_parser.add_argument("--host", type=str, default="0.0.0.0", help="主机地址")
@@ -108,6 +130,8 @@ def main():
         query(args)
     elif args.command == "add":
         add_documents(args)
+    elif args.command == "clear":
+        clear_knowledge_base(args)
     elif args.command == "server":
         run_api(args)
     else:

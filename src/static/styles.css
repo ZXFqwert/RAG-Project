@@ -1,0 +1,26 @@
+/* 
+   RAG系统前端样式
+*/
+
+/* 全局样式重置 */
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+/* 可在这里添加额外的全局样式 */
+.text-center {
+    text-align: center;
+}
+
+/* 可能的主题颜色变量 */
+:root {
+    --primary-color: #10a37f;
+    --secondary-color: #2563eb;
+    --background-color: #f9f9f9;
+    --text-color: #333;
+    --border-color: #e5e5e5;
+    --sidebar-bg: #202123;
+    --sidebar-text: #ffffff;
+} 

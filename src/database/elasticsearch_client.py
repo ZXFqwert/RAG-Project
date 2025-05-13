@@ -61,7 +61,7 @@ class ElasticsearchClient:
                 "properties": {
                     "content": {
                         "type": "text",
-                        "analyzer": "standard"
+                        "analyzer": "ik_smart"
                     },
                     "metadata": {
                         "type": "object",
@@ -74,8 +74,8 @@ class ElasticsearchClient:
                 "number_of_replicas": 0,
                 "analysis": {
                     "analyzer": {
-                        "standard": {
-                            "type": "standard"
+                        "default": {
+                            "type": "ik_smart"
                         }
                     }
                 }

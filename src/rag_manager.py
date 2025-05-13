@@ -317,6 +317,59 @@ class RAGManager:
             print(f"加载索引失败: {str(e)}")
             return False
     
+    def clear_knowledge_base(self) -> None:
+        """
+        清空知识库
+        
+        删除所有索引数据，包括数据库索引和内存索引
+        """
+        if self.use_db:
+            # 清空数据库索引
+            if self.use_elasticsearch and self.es_client:
+                try:
+                    print("正在删除Elasticsearch索引...")
+                    self.es_client.connect()
+                    self.es_client.delete_index()
+                    print("Elasticsearch索引已清空")
+                except Exception as e:
+                    print(f"删除Elasticsearch索引失败: {str(e)}")
+            
+            if self.use_milvus and self.milvus_client:
+                try:
+                    print("正在删除Milvus集合...")
+                    self.milvus_client.connect()
+                    self.milvus_client.drop_collection()
+                    print("Milvus集合已清空")
+                except Exception as e:
+                    print(f"删除Milvus集合失败: {str(e)}")
+        else:
+            # 清空内存索引
+            try:
+                print("正在删除内存索引文件...")
+                # 删除索引文件
+                if os.path.exists(f"{self.bm25_index_path}.pkl"):
+                    os.remove(f"{self.bm25_index_path}.pkl")
+                
+                if os.path.exists(f"{self.vector_index_path}.faiss"):
+                    os.remove(f"{self.vector_index_path}.faiss")
+                
+                if os.path.exists(f"{self.vector_index_path}.pkl"):
+                    os.remove(f"{self.vector_index_path}.pkl")
+                
+                # 重新初始化检索器
+                self.bm25_retriever = BM25Retriever()
+                self.vector_retriever = VectorRetriever()
+                self.retriever = HybridRetriever(
+                    bm25_retriever=self.bm25_retriever,
+                    vector_retriever=self.vector_retriever
+                )
+                
+                print("内存索引已清空")
+            except Exception as e:
+                print(f"删除内存索引文件失败: {str(e)}")
+        
+        print("知识库已清空")
+    
     def retrieve(self, query: str, top_k: int = None) -> List[Document]:
         """
         检索文档
@@ -337,7 +390,13 @@ class RAGManager:
             # 从Elasticsearch检索
             if self.use_elasticsearch and self.es_client:
                 try:
-                    es_results = self.es_client.search(query, top_k=top_k * 2)
+                    es_results = self.es_client.search(query, top_k=top_k)
+                    print(f"Elasticsearch检索成功，检索到 {len(es_results)} 个结果")
+                    
+                    # 为ES结果添加来源标记
+                    for doc in es_results:
+                        doc.metadata["source_db"] = "elasticsearch"
+                    
                     results.extend(es_results)
                 except Exception as e:
                     print(f"Elasticsearch检索失败: {str(e)}")
@@ -345,12 +404,18 @@ class RAGManager:
             # 从Milvus检索
             if self.use_milvus and self.milvus_client:
                 try:
-                    milvus_results = self.milvus_client.search(query, top_k=top_k * 2)
+                    milvus_results = self.milvus_client.search(query, top_k=top_k)
+                    print(f"Milvus检索成功，检索到 {len(milvus_results)} 个结果")
+                    
+                    # 为Milvus结果添加来源标记
+                    for doc in milvus_results:
+                        doc.metadata["source_db"] = "milvus"
+                    
                     results.extend(milvus_results)
                 except Exception as e:
                     print(f"Milvus检索失败: {str(e)}")
             
-            # 如果使用两种数据库，需要去重和排序
+            # 如果使用两种数据库，需要去重
             if self.use_elasticsearch and self.use_milvus:
                 # 简单去重（基于内容前100个字符）
                 content_set = set()
@@ -362,11 +427,11 @@ class RAGManager:
                         content_set.add(content_hash)
                         unique_results.append(doc)
                 
-                # 取前top_k个
-                return unique_results[:top_k]
+                # 返回所有去重后的结果，不再限制数量
+                return unique_results
             else:
-                # 取前top_k个
-                return results[:top_k]
+                # 返回所有结果，不再限制数量
+                return results
         else:
             # 内存检索
             if not self.retriever:
